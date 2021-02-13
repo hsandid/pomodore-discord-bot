@@ -98,7 +98,7 @@ class Pomodoro {
       this.timerInterval = setInterval(() => {
 
         let pomodoro = container.pomodoros.filter(
-          (pomodoro) => pomodoro.id == message.guild.id
+          (pomodoro) => pomodoro.id == this.message.guild.id
         );
 
         if (pomodoro.length == 0) {
@@ -156,21 +156,21 @@ function checkParams(arg1, arg2, arg3, message) {
 
   if (arg1) {
     if (parseInt(arg1) < 2 || parseInt(arg1) > 60 || isNaN(parseInt(arg1))) {
-      message.channel.send('Insert a valid time between 2 and 120 minutes!');
+      message.channel.send('Insert a valid time between 2 and 60 minutes');
       checked = false;
     }
   }
 
   if (arg2) {
     if (parseInt(arg2) < 2 || parseInt(arg2) > 60 || isNaN(parseInt(arg2))) {
-      message.channel.send('Insert a valid time between 2 and 120 minutes!');
+      message.channel.send('Insert a valid time between 2 and 60 minutes');
       checked = false;
     }
   }
 
   if (arg3) {
     if (parseInt(arg3) < 2 || parseInt(arg3) > 60 || isNaN(parseInt(arg3))) {
-      message.channel.send('Insert a valid time between 2 and 60 minutes!');
+      message.channel.send('Insert a valid time between 2 and 60 minutes');
       checked = false;
     }
   }
@@ -202,7 +202,7 @@ client.on('message', async (message) => {
     );
 
     if (pomodoro.length > 0) {
-      message.reply("There's already a pomodoro running!");
+      message.reply("Pomodoro already running");
       return;
     }
 
@@ -241,7 +241,7 @@ client.on('message', async (message) => {
       return;
     }
 
-    message.channel.send("Pomodoro started! Let's get to work!");
+    message.channel.send("Pomodoro started");
   }
 
   //Stop the pomodoro
@@ -251,14 +251,14 @@ client.on('message', async (message) => {
     );
 
     if (pomodoroStop.length == 0) {
-      message.reply("There's no pomodoro currently running!");
+      message.reply("No Pomodoro currently running");
       return;
     }
 
     pomodoroStop[0].stopTimer();
     container.removePomodoro(message.guild.id);
 
-    message.channel.send('Nice work! Glad I could help!');
+    message.channel.send('Pomodoro Stopped');
 
   }
 
@@ -279,14 +279,14 @@ client.on('message', async (message) => {
     if (pomodoro[0].time % 2 != 0) {
       timeLeft = parseInt((pomodoro[0].workTime - timePassed) / 60000);
       message.channel.send(
-        `${timeLeft + 1}min left to your break! Keep it up!`
+        `${timeLeft + 1}min left`
       );
     } else if (pomodoro[0].time % 2 == 0 && pomodoro[0].time != 8) {
       timeLeft = parseInt((pomodoro[0].smallBreak - timePassed) / 60000);
-      message.channel.send(`${timeLeft + 1}min left to start working!`);
+      message.channel.send(`${timeLeft + 1}min left`);
     } else {
       timeLeft = parseInt((pomodoro[0].bigBreak - timePassed) / 60000);
-      message.channel.send(`${timeLeft + 1}min left to start working!`);
+      message.channel.send(`${timeLeft + 1}min left`);
     }
   }
 
