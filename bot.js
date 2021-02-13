@@ -26,8 +26,7 @@ class Pomodoro {
     bigBreak,
     connection,
     id,
-    message,
-    textOnly
+    message
   ) {
     this.id = id;
     this.workTime = workTime;
@@ -43,6 +42,9 @@ class Pomodoro {
     this.alertText = '';
     this.interval = null;
 
+    var today = new Date();
+    this.timePomodoroInitialized = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
     this.startANewCycle();
   }
 
@@ -50,24 +52,16 @@ class Pomodoro {
     try {
       if (this.time % 2 != 0 && this.time != 7) {
         this.interval = this.workTime;
-        this.alertText = `You worked for ${
-          this.workTime / 60000
-        }min! Time for a small break of ${this.smallBreak / 60000}min!`;
+        this.alertText = `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:closed_book: Completed Work Session of ${this.workTime / 60000} minutes. Starting break of ${this.smallBreak / 60000} minutes.`;
       } else if (this.time == 7) {
         this.interval = this.workTime;
-        this.alertText = `You worked for ${
-          this.workTime / 60000
-        }min! Time for a big break of ${this.bigBreak / 60000}min!`;
+        this.alertText = `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:closed_book: Completed Work Session of ${this.workTime / 60000} minutes. Starting Large break of ${this.bigBreak / 60000} minutes.`;
       } else if (this.time % 2 == 0 && this.time != 8) {
         this.interval = this.smallBreak;
-        this.alertText = `You finished your ${
-          this.smallBreak / 60000
-        }min break! Let's get back to work!`;
+        this.alertText = `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:closed_book: Break over. Starting Work Session of ${this.workTime / 60000} minutes.`;
       } else if (this.time == 8) {
         this.interval = this.bigBreak;
-        this.alertText = `You finished your ${
-          this.bigBreak / 60000
-        }min break! Let's get back to work!`;
+        this.alertText = `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:closed_book: Break over. Starting Work Session of ${this.workTime / 60000} minutes.`;
       }
 
       this.timerStartedTime = new Date();
@@ -75,25 +69,16 @@ class Pomodoro {
       this.timer = setTimeout(() => {
         this.time++;
 
-        //Send Text Alerts
-        if (this.textAlerts) {
-          this.message.channel.send(this.alertText);
-        }
-
-        //Send DM Alerts
-        if (this.peopleToDm.length > 0) {
-          this.peopleToDm.forEach((person) => {
-            try {
-              client.users.get(person).send(this.alertText);
-            } catch (err) {
-              console.log(err);
-            }
-          });
-        }
+        this.message.channel.send(this.alertText);
 
         //Start a New Cycle
         this.startANewCycle();
       }, this.interval);
+
+      if(this.timerInterval != null)
+    {
+      clearInterval(this.timerInterval);
+    }
 
       this.timerInterval = setInterval(() => {
 
@@ -111,15 +96,15 @@ class Pomodoro {
 
         if (pomodoro[0].time % 2 != 0) {
           timeLeft = parseInt((pomodoro[0].workTime - timePassed) / 60000);
-          message.channel.send(
-            `${timeLeft + 1}mins left`
+          this.message.channel.send(
+            `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:timer: ${timeLeft + 1} minutes left`
           );
         } else if (pomodoro[0].time % 2 == 0 && pomodoro[0].time != 8) {
           timeLeft = parseInt((pomodoro[0].smallBreak - timePassed) / 60000);
-          message.channel.send(`${timeLeft + 1}mins left`);
+          this.message.channel.send(`𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:timer: ${timeLeft + 1} minutes left`);
         } else {
           timeLeft = parseInt((pomodoro[0].bigBreak - timePassed) / 60000);
-          message.channel.send(`${timeLeft + 1}mins left`);
+          this.message.channel.send(`𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:timer: ${timeLeft + 1} mins left`);
         }
       }, 300000);
 
@@ -156,21 +141,21 @@ function checkParams(arg1, arg2, arg3, message) {
 
   if (arg1) {
     if (parseInt(arg1) < 2 || parseInt(arg1) > 60 || isNaN(parseInt(arg1))) {
-      message.channel.send('Insert a valid time between 2 and 60 minutes');
+      message.channel.send('𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: Insert a valid time between 2 and 60 minutes');
       checked = false;
     }
   }
 
   if (arg2) {
     if (parseInt(arg2) < 2 || parseInt(arg2) > 60 || isNaN(parseInt(arg2))) {
-      message.channel.send('Insert a valid time between 2 and 60 minutes');
+      message.channel.send('𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: Insert a valid time between 2 and 60 minutes');
       checked = false;
     }
   }
 
   if (arg3) {
     if (parseInt(arg3) < 2 || parseInt(arg3) > 60 || isNaN(parseInt(arg3))) {
-      message.channel.send('Insert a valid time between 2 and 60 minutes');
+      message.channel.send('𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: Insert a valid time between 2 and 60 minutes');
       checked = false;
     }
   }
@@ -180,7 +165,7 @@ function checkParams(arg1, arg2, arg3, message) {
 
 setInterval(() => {
   container.pomodoros.forEach((pomodoro) => {
-    console.log(`${pomodoro.id}: ${pomodoro.time}: ${pomodoro.textOnly}`);
+    console.log(`${pomodoro.id}: ${pomodoro.time}`);
   });
   console.log('--------------------------');
 }, 300000);
@@ -202,12 +187,15 @@ client.on('message', async (message) => {
     );
 
     if (pomodoro.length > 0) {
-      message.reply("Pomodoro already running");
+      message.channel.send("𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: Pomodoro already running");
       return;
     }
 
     //Start the pomodoro
     try {
+      var today = new Date();
+      var currentTime = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
       if (args[1] && args[2] && args[3]) {
         container.addPomodoro(
           new Pomodoro(
@@ -216,10 +204,10 @@ client.on('message', async (message) => {
             parseInt(args[3] * 60000),
             null,
             message.guild.id,
-            message,
-            true
+            message
           )
         );
+        var textMessage = `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:loudspeaker: Pomodoro started at ${currentTime}, with a cycle of ${args[1]}/${args[2]}/${args[3]}`
       } else {
         container.addPomodoro(
           new Pomodoro(
@@ -228,20 +216,22 @@ client.on('message', async (message) => {
             900000,
             null,
             message.guild.id,
-            message,
-            true
+            message
           )
         );
+        var textMessage = `𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:loudspeaker: Pomodoro started at ${currentTime}, with a cycle of 25/5/15`
       }
     } catch (err) {
       console.log(err);
       message.channel.send(
-        "Error starting Pomodoro Timer!"
+        "𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: Error starting Pomodoro Timer!"
       );
       return;
     }
 
-    message.channel.send("Pomodoro started");
+
+
+    message.channel.send(textMessage);
   }
 
   //Stop the pomodoro
@@ -251,24 +241,28 @@ client.on('message', async (message) => {
     );
 
     if (pomodoroStop.length == 0) {
-      message.reply("No Pomodoro currently running");
+      message.channel.send("𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: No Pomodoro currently running");
       return;
     }
 
     pomodoroStop[0].stopTimer();
     container.removePomodoro(message.guild.id);
 
-    message.channel.send('Pomodoro Stopped');
+    today = new Date();
+    currentTime = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+    message.channel.send(`𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:loudspeaker: Pomodoro Stopped at ${currentTime}`);
 
   }
 
+  // Get Pomodoro status
   if (args[0] == COMMANDS[2]) {
     let pomodoro = container.pomodoros.filter(
       (pomodoro) => pomodoro.id == message.guild.id
     );
 
     if (pomodoro.length == 0) {
-      message.reply("There's no pomodoro currently running!");
+      message.channel.send("𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: There's no pomodoro currently running!");
       return;
     }
 
@@ -277,19 +271,41 @@ client.on('message', async (message) => {
     let timeLeft;
 
     if (pomodoro[0].time % 2 != 0) {
-      timeLeft = parseInt((pomodoro[0].workTime - timePassed) / 60000);
-      message.channel.send(
-        `${timeLeft + 1}min left`
-      );
+      timeLeft = 1 + parseInt((pomodoro[0].workTime - timePassed) / 60000);
     } else if (pomodoro[0].time % 2 == 0 && pomodoro[0].time != 8) {
-      timeLeft = parseInt((pomodoro[0].smallBreak - timePassed) / 60000);
-      message.channel.send(`${timeLeft + 1}min left`);
+      timeLeft = 1 +parseInt((pomodoro[0].smallBreak - timePassed) / 60000);
     } else {
-      timeLeft = parseInt((pomodoro[0].bigBreak - timePassed) / 60000);
-      message.channel.send(`${timeLeft + 1}min left`);
+      timeLeft = 1 +parseInt((pomodoro[0].bigBreak - timePassed) / 60000);
     }
+
+    const statusMsg = new Discord.RichEmbed()
+      .setColor('#f00')
+      .setTitle('Pomodore Status');
+			[
+				{
+          name: 'Time at which the Pomodoro was initialized',
+          value: pomodoro[0].timePomodoroInitialized,
+					isInline: true
+        },
+        {
+          name: 'Time remaining for the current Pomodoro cycle',
+          value: `${timeLeft} minutes`,
+					isInline: true
+        },
+        {
+						name: 'Number of work/break cycles completed',
+					 	value: pomodoro[0].time,
+						isInline: true
+				}
+	].forEach(({name, value, isInline}) => {
+	  statusMsg.addField(name, value, isInline)
+	})
+
+    message.channel.send(statusMsg);
+
   }
 
+  // Get help commands
   if (args[0] == COMMANDS[3]) {
     const helpCommands = new Discord.RichEmbed()
       .setColor('#f00')
@@ -333,7 +349,7 @@ client.on('message', async (message) => {
     message.author.send(helpCommands);
   }
 
-
+  // Clear messages
   if (args[0] == COMMANDS[4]) {
     let messagesProcessed = 0;
     let allDeleted = true;
@@ -353,7 +369,7 @@ client.on('message', async (message) => {
                 if (messagesProcessed == 29) {
                   if (!allDeleted) {
                     message.channel.send(
-                      'There was a problem deleting some of the messages! Please check my permissions!'
+                      '𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: There was a problem deleting some of the messages! Please check my permissions!'
                     );
                   }
                 }
@@ -365,7 +381,7 @@ client.on('message', async (message) => {
                 if (messagesProcessed == 29) {
                   if (!allDeleted) {
                     message.channel.send(
-                      'There was a problem deleting some of the messages! Please check my permissions!'
+                      '𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: There was a problem deleting some of the messages! Please check my permissions!'
                     );
                   }
                 }
@@ -375,7 +391,7 @@ client.on('message', async (message) => {
       })
       .catch(() => {
         message.channel.send(
-          'There was a problem deleting the messages! Please check my permissions!'
+          '𝐏𝐨𝐦𝐨𝐝𝐨𝐫𝐨 \:negative_squared_cross_mark: There was a problem deleting the messages! Please check my permissions!'
         );
       });
   }
